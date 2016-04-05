@@ -15,6 +15,7 @@ int line_calibration()
 		}
 		msleep(10);
 	}
+	ao();
 	if(!(min < max))
 		return -1;
 	else
