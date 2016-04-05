@@ -1,4 +1,5 @@
-int line_calibration()
+/*
+  int line_calibration()
 {
 	short unsigned int i, refl_val, min, max=0, on_line;
 	mav(LEFT_MOTOR_PORT, 1000);
@@ -7,7 +8,7 @@ int line_calibration()
 	for(i=0; i<500; i++)
 	{
 		refl_val=analog(LIGHT_SENSOR_PORT);
-		if(refl_val < min);
+		if(refl_val < min)
 			min=refl_val;
 		else if(refl_val > max)
 		{
@@ -21,7 +22,8 @@ int line_calibration()
 	else
 	{
 		on_line=(min+max)/2;
-		printf("\nAko analog(LIGHT_SENSOR_PORT) < %d, znachi Gosho e na liniata.", on_line);
+		printf("\nAko analog(LIGHT_SENSOR_PORT) > %d, znachi Gosho e na liniata.", on_line);
 		return on_line;
 	}
 }
+*/

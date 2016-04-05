@@ -1,4 +1,4 @@
-#ifndef MOTOR_CONTROL_H
+/*#ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
 
 #include <kipr/botball.h>
@@ -20,3 +20,4 @@ void drive_left(int);
 void drive_right(int);
 
 #endif
+*/
