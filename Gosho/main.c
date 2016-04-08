@@ -1,5 +1,4 @@
 #include <kipr/botball.h>
-#include <time.h>
 
 #define LIGHT_SENSOR_PORT 1
 #define START_SENSOR_PORT 0
@@ -34,19 +33,7 @@ int line_calibration();
 
 int main()
 {
-	time_t time_start, time_end;
-  	//int line_min;
-  	//msleep(15000);
-	//line_min=line_calibration();
-  	msleep(15000);
-  	time_start=time(NULL);
-  	drive_straight(10);
-  	while(analog(LIGHT_SENSOR_PORT)<4000)
-      msleep(10);
-  	time_end=time(NULL);
-  printf("%.5f\n", (double)180.0/(double)(time_end-time_start));
-      
-	/*int lines_crossed=0, refl_val=0, refl_val_prev=0, line_min;
+	int lines_crossed=0, refl_val=0, refl_val_prev=0, line_min;
 	set_servo_position(PIPE_PORT, PIPE_LOW);		//PP0QP0P;P=P8 P?P>P7P8QP8P8.
 	set_servo_position(BOT_PORT, BOT_OPEN);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
@@ -64,28 +51,24 @@ int main()
 		if(refl_val>line_min && refl_val_prev<line_min)
 			lines_crossed++;
 	}
-  	drive_straight(850);
+  	drive_straight(3/SPEED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(4500);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
-	//drive_left(300);			//
+	drive_straight(15/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
 	set_servo_position(BOT_PORT, BOT_CLOSED);	//P!QP8QP:P0 QP>P1P>QP0.
-	mav(LEFT_MOTOR_PORT, -500);
-	mav(RIGHT_MOTOR_PORT, -1000);
-	msleep(300);				//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
-	drive_backwards(5000);		//
+	drive_backwards(16/SPEED);			
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(1000);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
+	drive_straight(20/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
 	turn_right(TIME_FOR_FULL_TURN);
-	drive_straight(2500);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8! PP0P:QP> P8 P2QP8QP:P8 QQP>P9P=P>QQP8 P=P0P4P>P;Q.
+	drive_straight(13/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8! PP0P:QP> P8 P2QP8QP:P8 QQP>P9P=P>QQP8 P=P0P4P>P;Q.
+	turn_left(TIME_FOR_FULL_TURN);
+	drive_straight(10/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
-	drive_backwards(1000);
+	drive_backwards(12/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-	turn_right(TIME_FOR_FULL_TURN);
-	drive_straight(1000);
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(5000);
-	*/
+	drive_backwards(55/SPEED);
+	turn_left(TIME_FOR_FULL_TURN);
 	disable_servos();
 	ao();
 	return 0;
