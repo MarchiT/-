@@ -46,16 +46,21 @@ int main()
  	//msleep(20000);
 	//line_min=line_calibration();
 	//wait_for_light(0);
-  	msleep(15000);
-	drive_straight(10);
-	while(lines_crossed<3)
+  	msleep(5000);
+	/*drive_straight(10);
+	while(lines_crossed<4)
 	{
 		refl_val_prev=refl_val;
 		refl_val=analog(LIGHT_SENSOR_PORT);
 		if(refl_val>3750 && refl_val_prev<3750)
+        {
 			lines_crossed++;
+          	msleep(250);
+        }
+      	msleep(20);
 	}
-  	drive_straight(2700/SPEED);
+  	drive_straight(2600/SPEED);*/
+  	drive_straight(43500/SPEED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	set_servo_position(PIPE_PORT, PIPE_HIGH);
 	turn_left(TIME_FOR_FULL_TURN);
@@ -66,11 +71,11 @@ int main()
  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	//P!QP8QP:P0 QP>P1P>QP0.
   	msleep(1000);
 	drive_backwards(19000/SPEED);			
-	turn_left(TIME_FOR_FULL_TURN);
+	turn_left(TIME_FOR_FULL_TURN*2);
 	drive_straight(20000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
-	turn_right(TIME_FOR_FULL_TURN);
+	turn_right(TIME_FOR_FULL_TURN*2);
 	drive_straight(13000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8! PP0P:QP> P8 P2QP8QP:P8 QQP>P9P=P>QQP8 P=P0P4P>P;Q.
-	turn_left(TIME_FOR_FULL_TURN);
+	turn_left(TIME_FOR_FULL_TURN*2);
 	drive_straight(11000/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
   	ao();
@@ -79,10 +84,10 @@ int main()
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	ao();
   	msleep(1500);
-	turn_left(TIME_FOR_FULL_TURN);
+	turn_left(TIME_FOR_FULL_TURN*2);
 	drive_backwards(6000/SPEED);
   	follow_line_backwards();
-	turn_left(TIME_FOR_FULL_TURN);
+	turn_left(TIME_FOR_FULL_TURN*2);
 	disable_servos();
 	ao();
 	return 0;
