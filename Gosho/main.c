@@ -9,16 +9,17 @@
 #define SOLAR_ARRAY_PORT 1
 #define LIFT_BOT_PORT 0
 
-#define TIME_FOR_FULL_TURN 1150		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
-#define PIPE_LOW 1270
-#define PIPE_HIGH 120
+#define TIME_FOR_FULL_TURN 1200		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
+#define PIPE_LOW 1040
+#define PIPE_HIGH 112
 #define BOT_OPEN 1345
 #define BOT_CLOSED 550
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
-#define SOLAR_ARRAY_STARTING 875
-#define SOLAR_ARRAY_IN 313
-#define SOLAR_ARRAY_OUT 1900
+#define LIFT_BOT_MED 888
+#define SOLAR_ARRAY_IN 75
+#define SOLAR_ARRAY_OUT 1400
+#define SOLAR_ARRAY_MOBILE 1990
 
 #define SPEED 5.45455 //inch/s
 
@@ -29,11 +30,14 @@ void turn_right(int);
 void drive_left(int);
 void drive_right(int);
 void follow_line();
+void follow_line_backwards();
 int line_calibration();
+void drive_right_backwards(int);
+void drive_left_backwards(int);
 
 int main()
 {
-int lines_crossed=0, refl_val=0, refl_val_prev=0, line_min;
+	int lines_crossed=0, refl_val=0, refl_val_prev=0;//, line_min;
 	set_servo_position(PIPE_PORT, PIPE_LOW);		//PP0QP0P;P=P8 P?P>P7P8QP8P8.
 	set_servo_position(BOT_PORT, BOT_OPEN);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
@@ -44,37 +48,40 @@ int lines_crossed=0, refl_val=0, refl_val_prev=0, line_min;
 	//wait_for_light(0);
   	msleep(15000);
 	drive_straight(10);
-	while(lines_crossed<2)
+	while(lines_crossed<3)
 	{
 		refl_val_prev=refl_val;
 		refl_val=analog(LIGHT_SENSOR_PORT);
-		if(refl_val>3900 && refl_val_prev<3900)
+		if(refl_val>3750 && refl_val_prev<3750)
 			lines_crossed++;
 	}
-  	drive_straight(3000/SPEED);
+  	drive_straight(2700/SPEED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	set_servo_position(PIPE_PORT, PIPE_HIGH);
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(18000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
+	drive_straight(15500/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
 	ao();
-	set_servo_position(BOT_PORT, BOT_CLOSED);	//P!QP8QP:P0 QP>P1P>QP0.
-  	msleep(1500);
-	drive_backwards(20000/SPEED);			
+  	set_servo_position(BOT_PORT, BOT_CLOSED);	//P!QP8QP:P0 QP>P1P>QP0.
+  	msleep(1000);
+ 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	//P!QP8QP:P0 QP>P1P>QP0.
+  	msleep(1000);
+	drive_backwards(19000/SPEED);			
 	turn_left(TIME_FOR_FULL_TURN);
 	drive_straight(20000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
 	turn_right(TIME_FOR_FULL_TURN);
 	drive_straight(13000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8! PP0P:QP> P8 P2QP8QP:P8 QQP>P9P=P>QQP8 P=P0P4P>P;Q.
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(10000/SPEED);
+	drive_straight(11000/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
   	ao();
   	msleep(1500);
-	drive_backwards(12000/SPEED);
+	drive_backwards(13100/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	ao();
   	msleep(1500);
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_backwards(56000/SPEED);
+	drive_backwards(6000/SPEED);
+  	follow_line_backwards();
 	turn_left(TIME_FOR_FULL_TURN);
 	disable_servos();
 	ao();
@@ -101,9 +108,21 @@ void drive_left(int msec){
 	msleep(msec);
 }
 
+void drive_left_backwards(int msec){
+	mav(LEFT_MOTOR_PORT, -500);
+	mav(RIGHT_MOTOR_PORT, -1000);
+	msleep(msec);
+}
+
 void drive_right(int msec){
 	mav(LEFT_MOTOR_PORT, 1000);
 	mav(RIGHT_MOTOR_PORT, 500);
+	msleep(msec);	
+}
+
+void drive_right_backwards(int msec){
+	mav(LEFT_MOTOR_PORT, -1000);
+	mav(RIGHT_MOTOR_PORT, -500);
 	msleep(msec);	
 }
 
@@ -125,6 +144,15 @@ void follow_line(){
 	}
 	else{
 		drive_right(400);
+	}
+}
+
+void follow_line_backwards(){
+	if(analog(LIGHT_SENSOR_PORT) > 3750){
+		drive_left_backwards(400);
+	}
+	else{
+		drive_right_backwards(400);
 	}
 }
 
