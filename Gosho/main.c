@@ -38,7 +38,7 @@ void drive_left_backwards(int);
 int main()
 {
 	int lines_crossed=0, refl_val=0, refl_val_prev=0;//, line_min;
-	set_servo_position(PIPE_PORT, PIPE_LOW);		//PP0QP0P;P=P8 P?P>P7P8QP8P8.
+	set_servo_position(PIPE_PORT, PIPE_LOW);		
 	set_servo_position(BOT_PORT, BOT_OPEN);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	set_servo_position(SOLAR_ARRAY_PORT, SOLAR_ARRAY_MOBILE);
@@ -47,8 +47,8 @@ int main()
 	//line_min=line_calibration();
 	//wait_for_light(0);
   	msleep(5000);
-	/*drive_straight(10);
-	while(lines_crossed<4)
+	drive_straight(10);
+	while(lines_crossed<3)
 	{
 		refl_val_prev=refl_val;
 		refl_val=analog(LIGHT_SENSOR_PORT);
@@ -59,22 +59,31 @@ int main()
         }
       	msleep(20);
 	}
-  	drive_straight(2600/SPEED);*/
-  	drive_straight(43500/SPEED);
+  	drive_straight(2600/SPEED);
+  	//drive_straight(43500/SPEED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	set_servo_position(PIPE_PORT, PIPE_HIGH);
 	turn_left(TIME_FOR_FULL_TURN);
-	drive_straight(15500/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
+	//drive_straight(15500/SPEED);
+  	time_t time1, time2;
+  	time1=time(NULL);
+  	time2=time1;
+  	while(time2-time1 < 15.5/SPEED)
+    {
+    	follow_line();
+      	msleep(50);
+      	time2=time(NULL);
+    }
 	ao();
-  	set_servo_position(BOT_PORT, BOT_CLOSED);	//P!QP8QP:P0 QP>P1P>QP0.
+  	set_servo_position(BOT_PORT, BOT_CLOSED);	
   	msleep(1000);
- 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	//P!QP8QP:P0 QP>P1P>QP0.
+ 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
   	msleep(1000);
 	drive_backwards(19000/SPEED);			
 	turn_left(TIME_FOR_FULL_TURN*2);
-	drive_straight(20000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
+	drive_straight(20000/SPEED);		
 	turn_right(TIME_FOR_FULL_TURN*2);
-	drive_straight(13000/SPEED);		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8! PP0P:QP> P8 P2QP8QP:P8 QQP>P9P=P>QQP8 P=P0P4P>P;Q.
+	drive_straight(13000/SPEED);		
 	turn_left(TIME_FOR_FULL_TURN*2);
 	drive_straight(11000/SPEED);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
@@ -88,6 +97,9 @@ int main()
 	drive_backwards(6000/SPEED);
   	follow_line_backwards();
 	turn_left(TIME_FOR_FULL_TURN*2);
+  	*/
+  	
+  
 	disable_servos();
 	ao();
 	return 0;
