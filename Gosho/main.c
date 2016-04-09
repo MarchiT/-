@@ -9,9 +9,11 @@
 #define SOLAR_ARRAY_PORT 1
 #define LIFT_BOT_PORT 0
 
-#define TIME_FOR_FULL_TURN 1200		//P'P8QQP> P=P0P;QQP:P0P=P>, P4P0 QP5 P8P7P<P5QP8 P8 P=P0P3P;P0QP8!
-#define PIPE_LOW 1040
-#define PIPE_HIGH 112
+#define TIME_FOR_FULL_TURN 1150
+#define TIME_FOR_FULL_TURN_LOADED 1870
+
+#define PIPE_LOW 1712
+#define PIPE_HIGH 300
 #define BOT_OPEN 1345
 #define BOT_CLOSED 550
 #define LIFT_BOT_LOW 1024
@@ -43,10 +45,8 @@ int main()
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	set_servo_position(SOLAR_ARRAY_PORT, SOLAR_ARRAY_MOBILE);
 	enable_servos();
- 	//msleep(20000);
-	//line_min=line_calibration();
-	//wait_for_light(0);
   	msleep(5000);
+  	printf("Going forward...\n");
 	drive_straight(10);
 	while(lines_crossed<3)
 	{
@@ -55,37 +55,38 @@ int main()
 		if(refl_val>3750 && refl_val_prev<3750)
         {
 			lines_crossed++;
+          	printf("%d lines crossed...\n", lines_crossed);
           	msleep(250);
         }
       	msleep(20);
 	}
-  	drive_straight(2600/SPEED);
-  	//drive_straight(43500/SPEED);
-  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	drive_straight(2100/SPEED);
   	set_servo_position(PIPE_PORT, PIPE_HIGH);
 	turn_left(TIME_FOR_FULL_TURN);
-	//drive_straight(15500/SPEED);
-  	time_t time1, time2;
-  	time1=time(NULL);
-  	time2=time1;
-  	while(time2-time1 < 15.5/SPEED)
-    {
-    	follow_line();
-      	msleep(50);
-      	time2=time(NULL);
-    }
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	printf("Going to bot...\n");
+	drive_straight(15000/SPEED);
 	ao();
-  	set_servo_position(BOT_PORT, BOT_CLOSED);	
+  	printf("Getting bot.\n");
+  	set_servo_position(BOT_PORT, BOT_CLOSED);
   	msleep(1000);
+  	printf("Lifting bot to medium position...\n");
  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
   	msleep(1000);
-	drive_backwards(19000/SPEED);			
-	turn_left(TIME_FOR_FULL_TURN*2);
-	drive_straight(20000/SPEED);		
-	turn_right(TIME_FOR_FULL_TURN*2);
-	drive_straight(13000/SPEED);		
-	turn_left(TIME_FOR_FULL_TURN*2);
-	drive_straight(11000/SPEED);
+	drive_backwards(22000/SPEED);			
+	turn_left(TIME_FOR_FULL_TURN);
+  	drive_straight(20000/SPEED);		
+	turn_right(TIME_FOR_FULL_TURN);
+	drive_straight(16000/SPEED);		
+	turn_left(TIME_FOR_FULL_TURN);
+
+	while(analog(LIGHT_SENSOR_PORT) < 3750)
+	{
+     	printf("Walking to line...\n");
+		drive_straight(250);
+	}
+	//drive_straight(11000/SPEED);
+  	printf("Leaving balls...\n");
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
   	ao();
   	msleep(1500);
@@ -93,13 +94,10 @@ int main()
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	ao();
   	msleep(1500);
-	turn_left(TIME_FOR_FULL_TURN*2);
+	turn_left(TIME_FOR_FULL_TURN);
 	drive_backwards(6000/SPEED);
   	follow_line_backwards();
-	turn_left(TIME_FOR_FULL_TURN*2);
-  	*/
-  	
-  
+	turn_left(TIME_FOR_FULL_TURN);  
 	disable_servos();
 	ao();
 	return 0;
@@ -108,49 +106,49 @@ int main()
 
 
 void drive_straight(int msec){
-	mav(LEFT_MOTOR_PORT, 1000);
+	mav(LEFT_MOTOR_PORT, 1008);
 	mav(RIGHT_MOTOR_PORT, 1000);
 	msleep(msec);
 }
 
 void drive_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1000);
+	mav(LEFT_MOTOR_PORT, -1008);
 	mav(RIGHT_MOTOR_PORT, -1000);
 	msleep(msec);
 }
 
 void drive_left(int msec){
-	mav(LEFT_MOTOR_PORT, 500);
+	mav(LEFT_MOTOR_PORT, 504);
 	mav(RIGHT_MOTOR_PORT, 1000);
 	msleep(msec);
 }
 
 void drive_left_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -500);
+	mav(LEFT_MOTOR_PORT, -504);
 	mav(RIGHT_MOTOR_PORT, -1000);
 	msleep(msec);
 }
 
 void drive_right(int msec){
-	mav(LEFT_MOTOR_PORT, 1000);
+	mav(LEFT_MOTOR_PORT, 1008);
 	mav(RIGHT_MOTOR_PORT, 500);
 	msleep(msec);	
 }
 
 void drive_right_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1000);
+	mav(LEFT_MOTOR_PORT, -1008);
 	mav(RIGHT_MOTOR_PORT, -500);
 	msleep(msec);	
 }
 
 void turn_right(int msec){
-	mav(LEFT_MOTOR_PORT, 750);
+	mav(LEFT_MOTOR_PORT, 756);
 	mav(RIGHT_MOTOR_PORT, -750);
 	msleep(msec);	
 }
 
 void turn_left(int msec){
-	mav(LEFT_MOTOR_PORT, -750);
+	mav(LEFT_MOTOR_PORT, -756);
 	mav(RIGHT_MOTOR_PORT, 750);
 	msleep(msec);
 }
