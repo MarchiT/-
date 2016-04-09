@@ -20,24 +20,24 @@
 #define BOT_CLOSED 550
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
-#define LIFT_BOT_MED 900
+#define LIFT_BOT_MED 888
 #define SOLAR_ARRAY_IN 75
 #define SOLAR_ARRAY_OUT 1400
 #define SOLAR_ARRAY_MOBILE 1990
 
 #define SPEED 5.45455 //inch/s
 
-#define RAMP_TIME 10000
+#define RAMP_TIME 5000
 #define FRONT_BLACK_MIN 3750
 #define BACK_BLACK_MIN 2000
 
 #define CORRECTION_ONE 2100
 #define DISTANCE_TO_BOT 15000
-#define RETURN_TO_GATE 20000
+#define RETURN_TO_GATE 22000
 #define THROUGH_GATE 20000
 #define CORRECTION_TWO 12000
-#define TO_RAMP 13100
-#define START_RAMP 6000
+#define TO_RAMP 15000
+#define START_RAMP 2000
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -56,16 +56,21 @@ void gate_bot();
 void follow_line_backwards_time( int t);
 void deliver_balls();
 void go_to_ramp();
+void follow_line_time( int t);
 
 int main()
 {
 	initial_positons();
-  	msleep(5000);
+  	
   	base_gate();
   	gate_bot();
 	deliver_balls();
 	go_to_ramp();
-  	follow_line_backwards_time(RAMP_TIME);
+  	//set_servo_position(BOT_PORT, BOT_CLOSED);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	msleep(5000);
+  	drive_straight(1000);
+  	follow_line_time(RAMP_TIME);
 	disable_servos();
 	ao();
 	return 0;
@@ -142,8 +147,8 @@ void go_to_ramp()
 	//set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	ao();
   	msleep(1500);
-	turn_left(TIME_FOR_FULL_TURN);
-	drive_backwards(START_RAMP/SPEED);  
+	turn_right(TIME_FOR_FULL_TURN);
+	//drive_backwards(START_RAMP/SPEED);  
 }
 
 void follow_line_backwards_time( int t)
@@ -154,6 +159,19 @@ void follow_line_backwards_time( int t)
   	while(time2-time1 < t)
     {
     	follow_line_backwards();
+      	time2=time(NULL);
+    }
+	turn_left(TIME_FOR_FULL_TURN); 
+}
+
+void follow_line_time( int t)
+{
+ 	time_t time1, time2;
+  	time1=time(NULL);
+  	time2=time1;
+  	while(time2-time1 < t)
+    {
+    	follow_line();
       	time2=time(NULL);
     }
 	turn_left(TIME_FOR_FULL_TURN); 
@@ -190,7 +208,7 @@ void drive_right(int msec){
 }
 
 void drive_right_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -2016);
+	mav(LEFT_MOTOR_PORT, -1016);
 	mav(RIGHT_MOTOR_PORT, -1500);
 	msleep(msec);	
 }
