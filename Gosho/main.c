@@ -184,7 +184,7 @@ void clean_panels()
 	turn_left(TIME_FOR_FULL_TURN*1.3);
   	follow_line_time(TIME_TO_PUSH);
   	follow_line_backwards_time(TIME_TO_PUSH);
-  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_PUSHING);
 	/*drive_straight(PUSH_PANELS/SPEED);
 	drive_backwards(BACK_OFF);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
