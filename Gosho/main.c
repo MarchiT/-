@@ -12,8 +12,8 @@
 
 #define TIME_FOR_FULL_TURN 1150
 #define TIME_FOR_FULL_TURN_LOADED 2100	//UNUSED
-#define RAMP_TIME 10000
-#TIME_TO_PUSH 5000
+#define RAMP_TIME 11000
+#define TIME_TO_PUSH 5000
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
@@ -22,6 +22,7 @@
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
 #define LIFT_BOT_MED 882
+#define LIFT_BOT_PUSHING 585
 #define SOLAR_ARRAY_IN 75	//UNUSED
 #define SOLAR_ARRAY_OUT 1400	//UNUSED
 #define SOLAR_ARRAY_MOBILE 1990	//UNUSED
@@ -180,10 +181,10 @@ void clean_panels()
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	msleep(1500);
 	drive_straight(CORRECTION_THREE/SPEED);
-	turn_left(TIME_FOR_FULL_TURN*0.7);
+	turn_left(TIME_FOR_FULL_TURN*1.3);
   	follow_line_time(TIME_TO_PUSH);
   	follow_line_backwards_time(TIME_TO_PUSH);
-  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
 	/*drive_straight(PUSH_PANELS/SPEED);
 	drive_backwards(BACK_OFF);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
@@ -216,8 +217,8 @@ void drive_left(int msec){
 }
 
 void drive_left_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1500);
-	mav(RIGHT_MOTOR_PORT, -2016);
+	mav(LEFT_MOTOR_PORT, -504);
+	mav(RIGHT_MOTOR_PORT, -1000);
 	msleep(msec);
 }
 
@@ -228,8 +229,8 @@ void drive_right(int msec){
 }
 
 void drive_right_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1016);
-	mav(RIGHT_MOTOR_PORT, -1500);
+	mav(LEFT_MOTOR_PORT, -1008);
+	mav(RIGHT_MOTOR_PORT, -500);
 	msleep(msec);	
 }
 
