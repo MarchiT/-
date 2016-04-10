@@ -7,12 +7,13 @@
 #define BOT_PORT 2
 #define RIGHT_MOTOR_PORT 1
 #define LEFT_MOTOR_PORT 0 
-#define SOLAR_ARRAY_PORT 1
+#define SOLAR_ARRAY_PORT 1	//UNUSED
 #define LIFT_BOT_PORT 0
 
 #define TIME_FOR_FULL_TURN 1150
-#define TIME_FOR_FULL_TURN_LOADED 2100
+#define TIME_FOR_FULL_TURN_LOADED 2100	//UNUSED
 #define RAMP_TIME 10000
+#TIME_TO_PUSH 5000
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
@@ -21,9 +22,9 @@
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
 #define LIFT_BOT_MED 882
-#define SOLAR_ARRAY_IN 75
-#define SOLAR_ARRAY_OUT 1400
-#define SOLAR_ARRAY_MOBILE 1990
+#define SOLAR_ARRAY_IN 75	//UNUSED
+#define SOLAR_ARRAY_OUT 1400	//UNUSED
+#define SOLAR_ARRAY_MOBILE 1990	//UNUSED
 
 #define SPEED 5.45455 //inch/s
 
@@ -38,9 +39,9 @@
 #define TO_RAMP 17000
 #define START_RAMP 7000
 #define CORRECTION_THREE 2500
-#define PUSH_PANELS 15000
-#define BACK_OFF 10000
-#define PUSH_DIRT 6000
+#define PUSH_PANELS 15000	//UNUSED
+#define BACK_OFF 10000	//UNUSED
+#define PUSH_DIRT 6000	//UNUSED
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -50,7 +51,7 @@ void drive_left(int);
 void drive_right(int);
 void follow_line();
 void follow_line_backwards();
-int line_calibration();
+int line_calibration();		//UNUSED
 void drive_right_backwards(int);
 void drive_left_backwards(int);
 void initial_positons();
@@ -69,8 +70,12 @@ int main()
 	//gate_bot();
 	//deliver_balls();
 	//go_to_ramp();
+  	enable_servos();	
+  	set_servo_position(BOT_PORT, BOT_CLOSED);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	drive_straight(2000);
 	follow_line_time(RAMP_TIME);
-	//clean_panels();
+	clean_panels();
 	disable_servos();
 	ao();
 	return 0;
@@ -171,13 +176,15 @@ void follow_line_time( int t)
 
 void clean_panels()
 {
+  	ao();
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	msleep(1500);
 	drive_straight(CORRECTION_THREE/SPEED);
-	turn_left(TIME_FOR_FULL_TURN);
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-	msleep(1500);
-	drive_straight(PUSH_PANELS/SPEED);
+	turn_left(TIME_FOR_FULL_TURN*0.7);
+  	follow_line_time(TIME_TO_PUSH);
+  	follow_line_backwards_time(TIME_TO_PUSH);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+	/*drive_straight(PUSH_PANELS/SPEED);
 	drive_backwards(BACK_OFF);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	turn_left(TIME_FOR_FULL_TURN*2);
@@ -187,7 +194,7 @@ void clean_panels()
 	drive_backwards(BACK_OFF/SPEED);
 	set_servo_position(BOT_PORT, BOT_CLOSED);
 	turn_right(TIME_FOR_FULL_TURN*2);
-	drive_straight(PUSH_DIRT/SPEED);
+	drive_straight(PUSH_DIRT/SPEED);*/
 }
 
 void drive_straight(int msec){
@@ -256,7 +263,7 @@ void follow_line_backwards(){
 	}
 }
 
-/*int line_calibration()
+int line_calibration()
 {
 	short unsigned int i, refl_val, min, max=0, on_line;
 	mav(LEFT_MOTOR_PORT, 1000);
@@ -282,4 +289,4 @@ void follow_line_backwards(){
 		printf("\nAko analog(LIGHT_SENSOR_PORT) > %d, znachi Gosho e na liniata.", on_line);
 		return on_line;
 	}
-}*/
+}
