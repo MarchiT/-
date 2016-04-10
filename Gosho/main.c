@@ -21,7 +21,7 @@
 #define BOT_CLOSED 550
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
-#define LIFT_BOT_MED 888
+#define LIFT_BOT_MED 900
 #define SOLAR_ARRAY_IN 75
 #define SOLAR_ARRAY_OUT 1400
 #define SOLAR_ARRAY_MOBILE 1990
@@ -32,12 +32,12 @@
 #define BACK_BLACK_MIN 2000
 
 #define CORRECTION_ONE 2100
-#define DISTANCE_TO_BOT 15000
+#define DISTANCE_TO_BOT 15500
 #define RETURN_TO_GATE 22000
 #define THROUGH_GATE 20000
 #define CORRECTION_TWO 12000
 #define TO_RAMP 15000
-#define START_RAMP 2000
+#define START_RAMP 7000
 #define CORRECTION_THREE 2500
 #define PUSH_PANELS 15000
 #define BACK_OFF 10000
@@ -70,11 +70,8 @@ int main()
 	gate_bot();
 	deliver_balls();
 	go_to_ramp();
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-	msleep(5000);
-	drive_straight(1000);
 	follow_line_time(RAMP_TIME);
-	clean_panels();
+	//clean_panels();
 	disable_servos();
 	ao();
 	return 0;
@@ -148,11 +145,10 @@ void deliver_balls()
 void go_to_ramp()
 {
 	drive_backwards(TO_RAMP/SPEED);
-	//set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-	ao();
-	msleep(1500);
 	turn_right(TIME_FOR_FULL_TURN);
-	//drive_backwards(START_RAMP/SPEED);  
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+	msleep(1500);
+  	drive_straight(START_RAMP);
 }
 
 void follow_line_backwards_time( int t)
@@ -250,7 +246,7 @@ void turn_left(int msec){
 }
 
 void follow_line(){
-	if(analog(LIGHT_SENSOR_PORT) > 3900){
+	if(analog(LIGHT_SENSOR_PORT) > FRONT_BLACK_MIN){
 		drive_left(50);
 	}
 	else{
