@@ -12,7 +12,7 @@
 
 #define TIME_FOR_FULL_TURN 1150
 #define TIME_FOR_FULL_TURN_LOADED 2100	//UNUSED
-#define RAMP_TIME 11000
+#define RAMP_TIME 20000
 #define TIME_TO_PUSH 5000
 #define PIPE_TURN 50	//UNUSED
 
@@ -22,7 +22,7 @@
 #define BOT_CLOSED 450
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
-#define LIFT_BOT_MED 882
+#define LIFT_BOT_MED 882	//UNUSED
 #define LIFT_BOT_PUSHING 585
 #define SOLAR_ARRAY_IN 75	//UNUSED
 #define SOLAR_ARRAY_OUT 1400	//UNUSED
@@ -33,20 +33,21 @@
 #define FRONT_BLACK_MIN 3000
 #define BACK_BLACK_MIN 2500
 
-#define CORRECTION_ONE 1800
+#define CORRECTION_ONE 2100
 #define DISTANCE_TO_BOT 15000
-#define RETURN_TO_GATE 20000
+#define RETURN_TO_GATE 18500
 #define THROUGH_GATE 20000
-#define CORRECTION_TWO 13000
+#define CORRECTION_TWO 18000
 #define TO_RAMP 18000
 #define START_RAMP 7000
 #define CORRECTION_THREE 2500
 #define PUSH_PANELS 15000	//UNUSED
 #define BACK_OFF 10000	//UNUSED
 #define PUSH_DIRT 6000	//UNUSED
-#define PUSH_BALL 15000
+#define PUSH_BALL 17000
 
 #define NOT_STRAIGHT_FIX_COEF 1.05
+#define RAMP_FIX_COEF 1.15
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -130,7 +131,7 @@ void gate_bot()
 	set_servo_position(BOT_PORT, BOT_CLOSED);
 	msleep(1000);
 	printf("Lifting bot to medium position...\n");
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
+	//set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
 	msleep(1000);  
 }
 
@@ -158,7 +159,7 @@ void deliver_balls()
 void go_to_ramp()
 {
 	drive_backwards(TO_RAMP/SPEED);
-	turn_right(TIME_FOR_FULL_TURN);
+	turn_right(TIME_FOR_FULL_TURN*RAMP_FIX_COEF);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	drive_straight(START_RAMP/SPEED);
 }
