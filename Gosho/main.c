@@ -34,19 +34,19 @@
 #define BACK_BLACK_MIN 2500
 
 #define CORRECTION_ONE 1800
-#define DISTANCE_TO_BOT 15500
-#define RETURN_TO_GATE 22000
+#define DISTANCE_TO_BOT 15000
+#define RETURN_TO_GATE 20000
 #define THROUGH_GATE 20000
-#define CORRECTION_TWO 12000
-#define TO_RAMP 17000
+#define CORRECTION_TWO 13000
+#define TO_RAMP 18000
 #define START_RAMP 7000
 #define CORRECTION_THREE 2500
 #define PUSH_PANELS 15000	//UNUSED
 #define BACK_OFF 10000	//UNUSED
 #define PUSH_DIRT 6000	//UNUSED
-#define PUSH_BALL 5000
+#define PUSH_BALL 15000
 
-#define NOT_STRAIGHT_FIX_COEF 1.03
+#define NOT_STRAIGHT_FIX_COEF 1.05
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -213,7 +213,7 @@ void drive_straight(int msec){
 }
 
 void drive_not_straight(int msec){
-  	mav(LEFT_MOTOR_PORT, 1015);
+  	mav(LEFT_MOTOR_PORT, 1030);
 	mav(RIGHT_MOTOR_PORT, 1000);
 	msleep(msec);
 }
