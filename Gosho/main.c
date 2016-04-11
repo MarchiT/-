@@ -14,6 +14,7 @@
 #define TIME_FOR_FULL_TURN_LOADED 2100	//UNUSED
 #define RAMP_TIME 11000
 #define TIME_TO_PUSH 5000
+#define PIPE_TURN 50	//UNUSED
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
@@ -29,8 +30,8 @@
 
 #define SPEED 5.45455 //inch/s
 
-#define FRONT_BLACK_MIN 3750
-#define BACK_BLACK_MIN 2000
+#define FRONT_BLACK_MIN 3000
+#define BACK_BLACK_MIN 2500
 
 #define CORRECTION_ONE 1800
 #define DISTANCE_TO_BOT 15500
@@ -43,6 +44,9 @@
 #define PUSH_PANELS 15000	//UNUSED
 #define BACK_OFF 10000	//UNUSED
 #define PUSH_DIRT 6000	//UNUSED
+#define PUSH_BALL 5000
+
+#define NOT_STRAIGHT_FIX_COEF 1.03
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -63,14 +67,17 @@ void deliver_balls();
 void go_to_ramp();
 void follow_line_time( int t);
 void clean_panels();
+void drive_not_straight(int);
 
 int main()
 {
-	//initial_positons();
-	//base_gate();
-	//gate_bot();
-	//deliver_balls();
-	//go_to_ramp();
+  	//wait_for_light(START_SENSOR_PORT);
+  	//
+	initial_positons();
+	base_gate();
+	gate_bot();
+	deliver_balls();
+	go_to_ramp();
   	enable_servos();	
   	set_servo_position(BOT_PORT, BOT_CLOSED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
@@ -95,7 +102,7 @@ void base_gate()
 {
 	int lines_crossed=0, refl_val=0, refl_val_prev=0;
 	printf("Going forward...\n");
-	drive_straight(10);
+	drive_not_straight(10);
 	while(lines_crossed<2)
 	{
 		refl_val_prev=refl_val;
@@ -114,7 +121,7 @@ void base_gate()
 void gate_bot()
 {
 	set_servo_position(PIPE_PORT, PIPE_HIGH);
-	turn_left(TIME_FOR_FULL_TURN);
+	turn_left(TIME_FOR_FULL_TURN*NOT_STRAIGHT_FIX_COEF);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
 	printf("Going to bot...\n");
 	drive_straight(DISTANCE_TO_BOT/SPEED);
@@ -133,7 +140,8 @@ void deliver_balls()
 	turn_left(TIME_FOR_FULL_TURN);
 	drive_straight(THROUGH_GATE/SPEED);		
 	turn_right(TIME_FOR_FULL_TURN);
-	drive_straight(CORRECTION_TWO/SPEED);		
+  	drive_backwards(PUSH_BALL/SPEED);
+	drive_straight((CORRECTION_TWO+PUSH_BALL)/SPEED);		
 	turn_left(TIME_FOR_FULL_TURN);
 	while(analog(LIGHT_SENSOR_PORT) < FRONT_BLACK_MIN)
 	{
@@ -200,6 +208,12 @@ void clean_panels()
 
 void drive_straight(int msec){
 	mav(LEFT_MOTOR_PORT, 1008);
+	mav(RIGHT_MOTOR_PORT, 1000);
+	msleep(msec);
+}
+
+void drive_not_straight(int msec){
+  	mav(LEFT_MOTOR_PORT, 1015);
 	mav(RIGHT_MOTOR_PORT, 1000);
 	msleep(msec);
 }
