@@ -1,5 +1,4 @@
 #include <kipr/botball.h>
-#include <time.h>
 
 #define LIGHT_SENSOR_PORT 1
 #define BACK_LIGHT_SENSOR_PORT 2
@@ -7,37 +6,49 @@
 #define PIPE_PORT 3
 #define BOT_PORT 2
 #define RIGHT_MOTOR_PORT 1
-#define LEFT_MOTOR_PORT 0 
-#define SOLAR_ARRAY_PORT 1
+#define LEFT_MOTOR_PORT 0
+#define SOLAR_ARRAY_PORT 1	//UNUSED
 #define LIFT_BOT_PORT 0
 
 #define TIME_FOR_FULL_TURN 1150
-#define TIME_FOR_FULL_TURN_LOADED 2100
+#define TIME_FOR_FULL_TURN_LOADED 2100	//UNUSED
+#define RAMP_TIME 20000
+#define TIME_TO_PUSH 5000
+#define PIPE_TURN 50	//UNUSED
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
 #define BOT_OPEN 1345
-#define BOT_CLOSED 550
+#define BOT_CLOSED 450
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
-#define LIFT_BOT_MED 888
-#define SOLAR_ARRAY_IN 75
-#define SOLAR_ARRAY_OUT 1400
-#define SOLAR_ARRAY_MOBILE 1990
+#define LIFT_BOT_MED 882	//UNUSED
+#define LIFT_BOT_PUSHING 585
+#define SOLAR_ARRAY_IN 75	//UNUSED
+#define SOLAR_ARRAY_OUT 1400	//UNUSED
+#define SOLAR_ARRAY_MOBILE 1990	//UNUSED
 
 #define SPEED 5.45455 //inch/s
 
-#define RAMP_TIME 5000
-#define FRONT_BLACK_MIN 3750
-#define BACK_BLACK_MIN 2000
+#define FRONT_BLACK_MIN 3000
+#define BACK_BLACK_MIN 2500
 
-#define CORRECTION_ONE 2100
-#define DISTANCE_TO_BOT 15000
-#define RETURN_TO_GATE 22000
+#define CORRECTION_ONE 3000
+#define DISTANCE_TO_BOT 16000
+#define RETURN_TO_GATE 20000
 #define THROUGH_GATE 20000
-#define CORRECTION_TWO 12000
-#define TO_RAMP 15000
-#define START_RAMP 2000
+#define CORRECTION_TWO 18000
+#define TO_RAMP 18000
+#define START_RAMP 7000
+#define CORRECTION_THREE 2500
+#define PUSH_PANELS 15000	//UNUSED
+#define BACK_OFF 10000	//UNUSED
+#define PUSH_DIRT 6000	//UNUSED
+#define PUSH_BALL 17000
+#define FIX_DISTANCE_EARLY_TURN_BUG 5000
+
+#define NOT_STRAIGHT_FIX_COEF 1.12
+#define RAMP_FIX_COEF 1.15
 
 void drive_straight(int);
 void drive_backwards(int);
@@ -47,7 +58,7 @@ void drive_left(int);
 void drive_right(int);
 void follow_line();
 void follow_line_backwards();
-int line_calibration();
+int line_calibration();		//UNUSED
 void drive_right_backwards(int);
 void drive_left_backwards(int);
 void initial_positons();
@@ -57,20 +68,24 @@ void follow_line_backwards_time( int t);
 void deliver_balls();
 void go_to_ramp();
 void follow_line_time( int t);
+void clean_panels();
+void drive_not_straight(int);
 
 int main()
 {
+  	//wait_for_light(START_SENSOR_PORT);
+  	//
 	initial_positons();
-  	
-  	base_gate();
-  	gate_bot();
+	base_gate();
+	gate_bot();
 	deliver_balls();
 	go_to_ramp();
-  	//set_servo_position(BOT_PORT, BOT_CLOSED);
+  	enable_servos();	
+  	set_servo_position(BOT_PORT, BOT_CLOSED);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-  	msleep(5000);
-  	drive_straight(1000);
-  	follow_line_time(RAMP_TIME);
+  	drive_straight(2000);
+	follow_line_time(RAMP_TIME);
+	clean_panels();
 	disable_servos();
 	ao();
 	return 0;
@@ -78,7 +93,7 @@ int main()
 
 void initial_positons()
 {
-  	set_servo_position(PIPE_PORT, PIPE_LOW);		
+	set_servo_position(PIPE_PORT, PIPE_LOW);		
 	set_servo_position(BOT_PORT, BOT_OPEN);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	set_servo_position(SOLAR_ARRAY_PORT, SOLAR_ARRAY_MOBILE);
@@ -87,98 +102,121 @@ void initial_positons()
 
 void base_gate()
 {
-  	int lines_crossed=0, refl_val=0, refl_val_prev=0;
- 	printf("Going forward...\n");
-	drive_straight(10);
-	while(lines_crossed<3)
+	int lines_crossed=0, refl_val=0, refl_val_prev=0;
+	printf("Going forward...\n");
+	drive_straight(FIX_DISTANCE_EARLY_TURN_BUG/SPEED);
+	drive_not_straight(10);
+	while(lines_crossed<2)
 	{
 		refl_val_prev=refl_val;
 		refl_val=analog(LIGHT_SENSOR_PORT);
 		if(refl_val>FRONT_BLACK_MIN && refl_val_prev<FRONT_BLACK_MIN)
-        {
+		{
 			lines_crossed++;
-          	printf("%d lines crossed...\n", lines_crossed);
-          	msleep(250);
-        }
-      	msleep(20);
+			printf("%d lines crossed...\n", lines_crossed);
+			msleep(250);
+		}
+		msleep(20);
 	}
-  	drive_straight(CORRECTION_ONE/SPEED); 
+	drive_straight(CORRECTION_ONE/SPEED); 
 }
 
 void gate_bot()
 {
 	set_servo_position(PIPE_PORT, PIPE_HIGH);
-	turn_left(TIME_FOR_FULL_TURN);
-  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-  	printf("Going to bot...\n");
+	turn_left(TIME_FOR_FULL_TURN*NOT_STRAIGHT_FIX_COEF);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+	printf("Going to bot...\n");
 	drive_straight(DISTANCE_TO_BOT/SPEED);
 	ao();
-  	printf("Getting bot.\n");
-  	set_servo_position(BOT_PORT, BOT_CLOSED);
-  	msleep(1000);
-  	printf("Lifting bot to medium position...\n");
- 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
-  	msleep(1000);  
+	printf("Getting bot.\n");
+	set_servo_position(BOT_PORT, BOT_CLOSED);
+	msleep(1000);
+	printf("Lifting bot to medium position...\n");
+	//set_servo_position(LIFT_BOT_PORT, LIFT_BOT_MED);	
+	msleep(1000);  
 }
 
 void deliver_balls()
 {
 	drive_backwards(RETURN_TO_GATE/SPEED);			
 	turn_left(TIME_FOR_FULL_TURN);
-  	drive_straight(THROUGH_GATE/SPEED);		
+	drive_straight(THROUGH_GATE/SPEED);		
 	turn_right(TIME_FOR_FULL_TURN);
-	drive_straight(CORRECTION_TWO/SPEED);		
+  	drive_backwards(PUSH_BALL/SPEED);
+	drive_straight((CORRECTION_TWO+PUSH_BALL)/SPEED);		
 	turn_left(TIME_FOR_FULL_TURN);
 	while(analog(LIGHT_SENSOR_PORT) < FRONT_BLACK_MIN)
 	{
-     	printf("Walking to line...\n");
+		printf("Walking to line...\n");
 		drive_straight(250);
 	}
 	//drive_straight(11000/SPEED);
-  	printf("Leaving balls...\n");
+	printf("Leaving balls...\n");
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
-  	ao();
-  	msleep(1500);  
+	ao();
+	msleep(1500);  
 }
 
 void go_to_ramp()
 {
 	drive_backwards(TO_RAMP/SPEED);
-	//set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
-  	ao();
-  	msleep(1500);
-	turn_right(TIME_FOR_FULL_TURN);
-	//drive_backwards(START_RAMP/SPEED);  
+	turn_right(TIME_FOR_FULL_TURN*RAMP_FIX_COEF);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	drive_straight(START_RAMP/SPEED);
 }
 
 void follow_line_backwards_time( int t)
 {
- 	time_t time1, time2;
-  	time1=time(NULL);
-  	time2=time1;
-  	while(time2-time1 < t)
-    {
-    	follow_line_backwards();
-      	time2=time(NULL);
-    }
-	turn_left(TIME_FOR_FULL_TURN); 
+	int elapsed_time=0;
+	while(elapsed_time < t)
+	{
+		follow_line_backwards();
+		elapsed_time+=50;
+	}
 }
 
 void follow_line_time( int t)
 {
- 	time_t time1, time2;
-  	time1=time(NULL);
-  	time2=time1;
-  	while(time2-time1 < t)
-    {
-    	follow_line();
-      	time2=time(NULL);
-    }
-	turn_left(TIME_FOR_FULL_TURN); 
+	int elapsed_time=0;
+	while(elapsed_time < t)
+	{
+		follow_line();
+		elapsed_time+=50;
+	}
+}
+
+void clean_panels()
+{
+  	ao();
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+	msleep(1500);
+	drive_straight(CORRECTION_THREE/SPEED);
+	turn_left(TIME_FOR_FULL_TURN*1.3);
+  	follow_line_time(TIME_TO_PUSH);
+  	follow_line_backwards_time(TIME_TO_PUSH);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_PUSHING);
+	/*drive_straight(PUSH_PANELS/SPEED);
+	drive_backwards(BACK_OFF);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+	turn_left(TIME_FOR_FULL_TURN*2);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+	msleep(1500);
+	set_servo_position(BOT_PORT, BOT_OPEN);
+	drive_backwards(BACK_OFF/SPEED);
+	set_servo_position(BOT_PORT, BOT_CLOSED);
+	turn_right(TIME_FOR_FULL_TURN*2);
+	drive_straight(PUSH_DIRT/SPEED);*/
 }
 
 void drive_straight(int msec){
 	mav(LEFT_MOTOR_PORT, 1008);
+	mav(RIGHT_MOTOR_PORT, 1000);
+	msleep(msec);
+}
+
+void drive_not_straight(int msec){
+  	mav(LEFT_MOTOR_PORT, 1050);
 	mav(RIGHT_MOTOR_PORT, 1000);
 	msleep(msec);
 }
@@ -196,8 +234,8 @@ void drive_left(int msec){
 }
 
 void drive_left_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1500);
-	mav(RIGHT_MOTOR_PORT, -2016);
+	mav(LEFT_MOTOR_PORT, -504);
+	mav(RIGHT_MOTOR_PORT, -1000);
 	msleep(msec);
 }
 
@@ -208,8 +246,8 @@ void drive_right(int msec){
 }
 
 void drive_right_backwards(int msec){
-	mav(LEFT_MOTOR_PORT, -1016);
-	mav(RIGHT_MOTOR_PORT, -1500);
+	mav(LEFT_MOTOR_PORT, -1008);
+	mav(RIGHT_MOTOR_PORT, -500);
 	msleep(msec);	
 }
 
@@ -226,7 +264,7 @@ void turn_left(int msec){
 }
 
 void follow_line(){
-	if(analog(LIGHT_SENSOR_PORT) > 3900){
+	if(analog(LIGHT_SENSOR_PORT) > FRONT_BLACK_MIN){
 		drive_left(50);
 	}
 	else{
@@ -243,7 +281,7 @@ void follow_line_backwards(){
 	}
 }
 
-/*int line_calibration()
+int line_calibration()
 {
 	short unsigned int i, refl_val, min, max=0, on_line;
 	mav(LEFT_MOTOR_PORT, 1000);
@@ -269,4 +307,4 @@ void follow_line_backwards(){
 		printf("\nAko analog(LIGHT_SENSOR_PORT) > %d, znachi Gosho e na liniata.", on_line);
 		return on_line;
 	}
-}*/
+}
