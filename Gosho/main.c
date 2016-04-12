@@ -34,8 +34,8 @@
 #define BACK_BLACK_MIN 2500
 
 #define CORRECTION_ONE 3500
-#define DISTANCE_TO_BOT 16000
-#define RETURN_TO_GATE 19000
+#define DISTANCE_TO_BOT 15000
+#define RETURN_TO_GATE 20000
 #define THROUGH_GATE 20000
 #define CORRECTION_TWO 15000
 #define TO_RAMP 18000
@@ -44,10 +44,10 @@
 #define PUSH_PANELS 15000	//UNUSED
 #define BACK_OFF 10000	//UNUSED
 #define PUSH_DIRT 6000	//UNUSED
-#define PUSH_BALL 17000
+#define PUSH_BALL 18000
 #define FIX_DISTANCE_EARLY_TURN_BUG 5000	//UNUSED
 
-#define NOT_STRAIGHT_FIX_COEF 1.12
+#define NOT_STRAIGHT_FIX_COEF 1.07
 #define RAMP_FIX_COEF 1.15
 
 void drive_straight(int);
@@ -73,8 +73,8 @@ void drive_not_straight(int);
 
 int main()
 {
-  	//wait_for_light(START_SENSOR_PORT);
-  	//
+  	wait_for_light(START_SENSOR_PORT);
+  	shut_down_in(119);
 	initial_positons();
 	base_gate();
 	gate_bot();
@@ -196,9 +196,9 @@ void clean_panels()
   	follow_line_time(TIME_TO_PUSH);
   	follow_line_backwards_time(TIME_TO_PUSH);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_PUSHING);
-	/*drive_straight(PUSH_PANELS/SPEED);
+	drive_straight(PUSH_PANELS/SPEED);
 	drive_backwards(BACK_OFF);
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);/*
 	turn_left(TIME_FOR_FULL_TURN*2);
 	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
 	msleep(1500);
