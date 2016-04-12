@@ -6,7 +6,7 @@
 #define PIPE_PORT 3
 #define BOT_PORT 2
 #define RIGHT_MOTOR_PORT 1
-#define LEFT_MOTOR_PORT 0 
+#define LEFT_MOTOR_PORT 0
 #define SOLAR_ARRAY_PORT 1	//UNUSED
 #define LIFT_BOT_PORT 0
 
@@ -30,14 +30,14 @@
 
 #define SPEED 5.45455 //inch/s
 
-#define FRONT_BLACK_MIN 3000
+#define FRONT_BLACK_MIN 3500
 #define BACK_BLACK_MIN 2500
 
-#define CORRECTION_ONE 2100
-#define DISTANCE_TO_BOT 15000
-#define RETURN_TO_GATE 18500
+#define CORRECTION_ONE 3500
+#define DISTANCE_TO_BOT 16000
+#define RETURN_TO_GATE 19000
 #define THROUGH_GATE 20000
-#define CORRECTION_TWO 18000
+#define CORRECTION_TWO 15000
 #define TO_RAMP 18000
 #define START_RAMP 7000
 #define CORRECTION_THREE 2500
@@ -45,8 +45,9 @@
 #define BACK_OFF 10000	//UNUSED
 #define PUSH_DIRT 6000	//UNUSED
 #define PUSH_BALL 17000
+#define FIX_DISTANCE_EARLY_TURN_BUG 5000	//UNUSED
 
-#define NOT_STRAIGHT_FIX_COEF 1.05
+#define NOT_STRAIGHT_FIX_COEF 1.12
 #define RAMP_FIX_COEF 1.15
 
 void drive_straight(int);
@@ -103,6 +104,7 @@ void base_gate()
 {
 	int lines_crossed=0, refl_val=0, refl_val_prev=0;
 	printf("Going forward...\n");
+	//drive_straight(FIX_DISTANCE_EARLY_TURN_BUG/SPEED);
 	drive_not_straight(10);
 	while(lines_crossed<2)
 	{
