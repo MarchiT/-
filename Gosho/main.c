@@ -15,7 +15,7 @@
 #define RAMP_TIME 20000
 #define TIME_TO_PUSH 5000
 #define PIPE_TURN 50	//UNUSED
-#define GATE_TURN 2300
+#define GATE_TURN 4000
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
@@ -27,6 +27,7 @@
 #define LIFT_BOT_HIGH 480
 #define LIFT_BOT_MED 882	//UNUSED
 #define LIFT_BOT_PUSHING 585
+#define LIFT_BOT_PUSHING_BOTGUY 830
 #define SOLAR_ARRAY_IN 75	//UNUSED
 #define SOLAR_ARRAY_OUT 1400	//UNUSED
 #define SOLAR_ARRAY_MOBILE 1990	//UNUSED
@@ -49,13 +50,13 @@
 #define PUSH_DIRT 6000	//UNUSED
 #define PUSH_BALL 18000
 #define FIX_DISTANCE_EARLY_TURN_BUG 5000	//UNUSED
-#define PUSH_BOT 19000
-#define BACK_OFF_FROM_BOT 2000
-#define RETURN_TO_GATE_NEW 28000
+#define PUSH_BOT 21000
+#define BACK_OFF_FROM_BOT 1000
+#define RETURN_TO_GATE_NEW 35000
 #define THROUGH_GATE_NEW 18000
 #define CORECTION_TWO_NEW 10000
 
-#define NOT_STRAIGHT_FIX_COEF 1.07
+#define NOT_STRAIGHT_FIX_COEF 1.10
 #define RAMP_FIX_COEF 1.15
 
 void drive_straight(int);
@@ -87,8 +88,8 @@ int main()
   	shut_down_in(119);
 	initial_positons();
 	base_gate();
-	gate_bot();
-	deliver_balls();
+	gate_bot_new();
+	deliver_balls_new();
 	go_to_ramp();
   	enable_servos();	
   	set_servo_position(BOT_PORT, BOT_CLOSED);
@@ -151,14 +152,17 @@ void gate_bot_new()
 {
   	set_servo_position(PIPE_PORT, PIPE_HIGH);
 	turn_left(TIME_FOR_FULL_TURN*NOT_STRAIGHT_FIX_COEF);
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_PUSHING_BOTGUY);
+  	set_servo_position(BOT_PORT, BOT_CLOSED);
 	printf("Going to bot...\n");
 	drive_straight(PUSH_BOT/SPEED);
-  	drive_backwards(BACK_OFF_FROM_BOT);
+  	/*drive_backwards(BACK_OFF_FROM_BOT);
   	set_servo_position(BOT_PORT, BOT_SURROUND);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
-  	drive_straight(BACK_OFF_FROM_BOT/SPEED);
+  	drive_straight(BACK_OFF_FROM_BOT/SPEED);*/
   	ao();
+  	set_servo_position(BOT_PORT, BOT_SURROUND);
+  	msleep(1500);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	msleep(1500);
   	set_servo_position(BOT_PORT, BOT_CATCH);
@@ -193,23 +197,14 @@ void deliver_balls_new()
 	turn_right(TIME_FOR_FULL_TURN);
   	drive_backwards(PUSH_BALL/SPEED);
 	drive_straight((CORRECTION_TWO+PUSH_BALL)/SPEED);		
-	turn_left(TIME_FOR_FULL_TURN);
-	while(analog(LIGHT_SENSOR_PORT) < FRONT_BLACK_MIN)
-	{
-		printf("Walking to line...\n");
-		drive_straight(250);
-	}
-	//drive_straight(11000/SPEED);
-	printf("Leaving balls...\n");
-	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
 	ao();
 	msleep(1500);  
 }
 
 void go_to_ramp()
 {
-	drive_backwards(TO_RAMP/SPEED);
-	turn_right(TIME_FOR_FULL_TURN*RAMP_FIX_COEF);
+	//drive_backwards(TO_RAMP/SPEED);
+	//turn_right(TIME_FOR_FULL_TURN*RAMP_FIX_COEF);
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	drive_straight(START_RAMP/SPEED);
 }
