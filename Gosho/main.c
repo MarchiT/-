@@ -15,11 +15,14 @@
 #define RAMP_TIME 20000
 #define TIME_TO_PUSH 5000
 #define PIPE_TURN 50	//UNUSED
+#define GATE_TURN 2300
 
 #define PIPE_LOW 1712
 #define PIPE_HIGH 300
 #define BOT_OPEN 1345
 #define BOT_CLOSED 450
+#define BOT_SURROUND 755
+#define BOT_CATCH 575
 #define LIFT_BOT_LOW 1024
 #define LIFT_BOT_HIGH 480
 #define LIFT_BOT_MED 882	//UNUSED
@@ -46,6 +49,11 @@
 #define PUSH_DIRT 6000	//UNUSED
 #define PUSH_BALL 18000
 #define FIX_DISTANCE_EARLY_TURN_BUG 5000	//UNUSED
+#define PUSH_BOT 19000
+#define BACK_OFF_FROM_BOT 2000
+#define RETURN_TO_GATE_NEW 28000
+#define THROUGH_GATE_NEW 18000
+#define CORECTION_TWO_NEW 10000
 
 #define NOT_STRAIGHT_FIX_COEF 1.07
 #define RAMP_FIX_COEF 1.15
@@ -70,6 +78,8 @@ void go_to_ramp();
 void follow_line_time( int t);
 void clean_panels();
 void drive_not_straight(int);
+void gate_bot_new();
+void deliver_balls_new();
 
 int main()
 {
@@ -85,7 +95,7 @@ int main()
   	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
   	drive_straight(2000);
 	follow_line_time(RAMP_TIME);
-	clean_panels();
+	//clean_panels();
 	disable_servos();
 	ao();
 	return 0;
@@ -137,11 +147,49 @@ void gate_bot()
 	msleep(1000);  
 }
 
+void gate_bot_new()
+{
+  	set_servo_position(PIPE_PORT, PIPE_HIGH);
+	turn_left(TIME_FOR_FULL_TURN*NOT_STRAIGHT_FIX_COEF);
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+	printf("Going to bot...\n");
+	drive_straight(PUSH_BOT/SPEED);
+  	drive_backwards(BACK_OFF_FROM_BOT);
+  	set_servo_position(BOT_PORT, BOT_SURROUND);
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+  	drive_straight(BACK_OFF_FROM_BOT/SPEED);
+  	ao();
+  	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_LOW);
+  	msleep(1500);
+  	set_servo_position(BOT_PORT, BOT_CATCH);
+}
+
 void deliver_balls()
 {
 	drive_backwards(RETURN_TO_GATE/SPEED);			
 	turn_left(TIME_FOR_FULL_TURN);
 	drive_straight(THROUGH_GATE/SPEED);		
+	turn_right(TIME_FOR_FULL_TURN);
+  	drive_backwards(PUSH_BALL/SPEED);
+	drive_straight((CORRECTION_TWO+PUSH_BALL)/SPEED);		
+	turn_left(TIME_FOR_FULL_TURN);
+	while(analog(LIGHT_SENSOR_PORT) < FRONT_BLACK_MIN)
+	{
+		printf("Walking to line...\n");
+		drive_straight(250);
+	}
+	//drive_straight(11000/SPEED);
+	printf("Leaving balls...\n");
+	set_servo_position(LIFT_BOT_PORT, LIFT_BOT_HIGH);
+	ao();
+	msleep(1500);  
+}
+
+void deliver_balls_new()
+{
+	drive_backwards(RETURN_TO_GATE_NEW/SPEED);
+  	drive_left(GATE_TURN);
+  	drive_straight(THROUGH_GATE_NEW/SPEED);		
 	turn_right(TIME_FOR_FULL_TURN);
   	drive_backwards(PUSH_BALL/SPEED);
 	drive_straight((CORRECTION_TWO+PUSH_BALL)/SPEED);		
@@ -264,7 +312,7 @@ void turn_left(int msec){
 }
 
 void follow_line(){
-	if(analog(LIGHT_SENSOR_PORT) > FRONT_BLACK_MIN){
+	if(analog(LIGHT_SENSOR_PORT) < FRONT_BLACK_MIN){
 		drive_left(50);
 	}
 	else{
